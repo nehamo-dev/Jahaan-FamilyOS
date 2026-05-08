@@ -9,14 +9,12 @@ import { Step1Calendar } from "./steps/Step1Calendar";
 import { Step2FamilyMembers } from "./steps/Step2FamilyMembers";
 import { Step3Gmail } from "./steps/Step3Gmail";
 import { Step4School } from "./steps/Step4School";
-import { Step5Notifications } from "./steps/Step5Notifications";
 
 const STEPS = [
   Step1Calendar,
   Step2FamilyMembers,
   Step3Gmail,
   Step4School,
-  Step5Notifications,
 ];
 
 export function OnboardingShell() {

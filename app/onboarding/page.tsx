@@ -7,7 +7,7 @@ export default async function OnboardingPage({
   searchParams: Promise<Record<string, string>>;
 }) {
   const params = await searchParams;
-  const initialStep = Math.min(Math.max(parseInt(params.step ?? "1") || 1, 1), 5);
+  const initialStep = Math.min(Math.max(parseInt(params.step ?? "1") || 1, 1), 4);
 
   return (
     <OnboardingProvider initialStep={initialStep}>

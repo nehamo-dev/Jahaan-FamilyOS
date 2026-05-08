@@ -14,7 +14,7 @@ const OnboardingContext = createContext<OnboardingContextType | null>(null);
 
 export function OnboardingProvider({ children, initialStep = 1 }: { children: React.ReactNode; initialStep?: number }) {
   const [step, setStep] = useState(initialStep);
-  const totalSteps = 5;
+  const totalSteps = 4;
 
   const next = useCallback(() => setStep((s) => Math.min(s + 1, totalSteps)), [totalSteps]);
   const back = useCallback(() => setStep((s) => Math.max(s - 1, 1)), []);
