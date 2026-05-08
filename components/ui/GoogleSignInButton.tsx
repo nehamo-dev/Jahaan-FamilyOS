@@ -13,7 +13,7 @@ export function GoogleSignInButton() {
       provider: "google",
       options: {
         redirectTo: `${window.location.origin}/auth/callback`,
-        scopes: "email profile",
+        scopes: "email profile https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/gmail.readonly",
       },
     });
     setLoading(false);
