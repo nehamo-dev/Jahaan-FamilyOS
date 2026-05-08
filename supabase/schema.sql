@@ -51,7 +51,7 @@ create table calendar_events (
   id                uuid primary key default uuid_generate_v4(),
   user_id           uuid references auth.users(id) on delete cascade not null,
   family_id         uuid references families(id) on delete cascade not null,
-  gcal_event_id     text,
+  gcal_event_id     text unique,
   title             text not null,
   start_at          timestamptz not null,
   end_at            timestamptz not null,

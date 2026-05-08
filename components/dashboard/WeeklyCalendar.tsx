@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { ChevronLeft, ChevronRight, CalendarDays, CheckSquare, Plus } from "lucide-react";
+import { ChevronLeft, ChevronRight, CalendarDays, CheckSquare, Plus, RefreshCw } from "lucide-react";
 import { AddTaskSheet } from "./AddTaskSheet";
 
 interface CalEvent {
@@ -67,6 +67,7 @@ export function WeeklyCalendar() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [familyId, setFamilyId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [syncing, setSyncing] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
 
   useEffect(() => {
@@ -76,7 +77,11 @@ export function WeeklyCalendar() {
       if (!user) return;
       const { data: fam } = await supabase
         .from("families").select("id").eq("created_by", user.id).maybeSingle();
-      if (fam) setFamilyId(fam.id);
+      if (fam) {
+        setFamilyId(fam.id);
+        // Auto-sync on first load
+        syncCalendar();
+      }
       setLoading(false);
     }
     loadFamily();
@@ -88,6 +93,13 @@ export function WeeklyCalendar() {
     loadWeekData();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [familyId, weekStart]);
+
+  async function syncCalendar() {
+    setSyncing(true);
+    try { await fetch("/api/sync-calendar", { method: "POST" }); } catch {}
+    setSyncing(false);
+    if (familyId) loadWeekData();
+  }
 
   async function loadWeekData() {
     const supabase = createClient();
@@ -138,6 +150,13 @@ export function WeeklyCalendar() {
             className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[rgba(0,0,0,0.05)] active:scale-95 transition-all"
           >
             <ChevronRight size={18} strokeWidth={1.5} className="text-content-secondary" />
+          </button>
+          <button
+            onClick={syncCalendar}
+            disabled={syncing}
+            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[rgba(0,0,0,0.05)] active:scale-95 transition-all"
+          >
+            <RefreshCw size={15} strokeWidth={1.5} className={`text-content-secondary ${syncing ? "animate-spin" : ""}`} />
           </button>
         </div>
       </div>
