@@ -55,6 +55,14 @@ export function FamilyMembersCard() {
     }
     setFamilyId(fid);
 
+    // Silently save timezone + week start defaults
+    const detectedTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const tz = detectedTz || "America/Los_Angeles";
+    await supabase.from("family_settings").upsert(
+      { family_id: fid, timezone: tz, week_start: "monday" },
+      { onConflict: "family_id" }
+    );
+
     // Seed self as first parent if not present
     const { data: selfMember } = await supabase
       .from("family_members")

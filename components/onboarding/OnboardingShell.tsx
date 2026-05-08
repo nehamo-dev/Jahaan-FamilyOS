@@ -7,18 +7,16 @@ import { StepWrapper } from "./StepWrapper";
 
 import { Step1Calendar } from "./steps/Step1Calendar";
 import { Step2FamilyMembers } from "./steps/Step2FamilyMembers";
-import { Step3Settings } from "./steps/Step3Settings";
-import { Step4School } from "./steps/Step4School";
-import { Step5Gmail } from "./steps/Step5Gmail";
-import { Step6Notifications } from "./steps/Step6Notifications";
+import { Step3School } from "./steps/Step3School";
+import { Step4Gmail } from "./steps/Step4Gmail";
+import { Step5Notifications } from "./steps/Step5Notifications";
 
 const STEPS = [
   Step1Calendar,
   Step2FamilyMembers,
-  Step3Settings,
-  Step4School,
-  Step5Gmail,
-  Step6Notifications,
+  Step3School,
+  Step4Gmail,
+  Step5Notifications,
 ];
 
 export function OnboardingShell() {
