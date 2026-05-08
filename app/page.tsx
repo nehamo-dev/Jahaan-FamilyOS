@@ -1,4 +1,4 @@
-import { Cake, GraduationCap, PalmtreeIcon, Wrench, Sparkles } from "lucide-react";
+import { Cake, GraduationCap, PalmtreeIcon, Wrench, Sparkles, User, Baby } from "lucide-react";
 import { GoogleSignInButton } from "@/components/ui/GoogleSignInButton";
 
 const pillars = [
@@ -35,9 +35,11 @@ const pillars = [
 ];
 
 const avatars = [
-  { initials: "NM", bg: "#EEEDFE", text: "#534AB7" },
-  { initials: "RS", bg: "#E1F5EE", text: "#0F6E56" },
-  { initials: "AK", bg: "#FAEEDA", text: "#633806" },
+  { icon: User,  bg: "#EEEDFE", color: "#534AB7", size: 18 },
+  { icon: User,  bg: "#EEEDFE", color: "#534AB7", size: 18 },
+  { icon: Baby,  bg: "#E1F5EE", color: "#0F6E56", size: 16 },
+  { icon: Baby,  bg: "#E1F5EE", color: "#0F6E56", size: 16 },
+  { icon: Baby,  bg: "#E1F5EE", color: "#0F6E56", size: 16 },
 ];
 
 export default function LandingPage() {
@@ -56,21 +58,23 @@ export default function LandingPage() {
 
           {/* Avatar cluster */}
           <div className="flex items-center mt-1">
-            {avatars.map((a, i) => (
-              <div
-                key={i}
-                className="w-10 h-10 rounded-pill flex items-center justify-center text-[13px] font-semibold border-2 border-[#F7F7F5]"
-                style={{
-                  backgroundColor: a.bg,
-                  color: a.text,
-                  marginLeft: i === 0 ? 0 : "-8px",
-                  zIndex: avatars.length - i,
-                  position: "relative",
-                }}
-              >
-                {a.initials}
-              </div>
-            ))}
+            {avatars.map((a, i) => {
+              const Icon = a.icon;
+              return (
+                <div
+                  key={i}
+                  className="w-10 h-10 rounded-pill flex items-center justify-center border-2 border-[#F7F7F5]"
+                  style={{
+                    backgroundColor: a.bg,
+                    marginLeft: i === 0 ? 0 : "-8px",
+                    zIndex: avatars.length - i,
+                    position: "relative",
+                  }}
+                >
+                  <Icon size={a.size} strokeWidth={1.5} style={{ color: a.color }} />
+                </div>
+              );
+            })}
           </div>
         </div>
 
