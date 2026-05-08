@@ -2,13 +2,13 @@
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { Home, CalendarDays, CheckSquare, Users } from "lucide-react";
+import { CalendarDays, LayoutGrid, CheckSquare, Users } from "lucide-react";
 
 const NAV = [
-  { href: "/dashboard",          label: "Home",     icon: Home },
-  { href: "/dashboard/calendar", label: "Calendar", icon: CalendarDays },
-  { href: "/dashboard/tasks",    label: "Tasks",    icon: CheckSquare },
-  { href: "/dashboard/family",   label: "Family",   icon: Users },
+  { href: "/dashboard",         label: "Calendar", icon: CalendarDays },
+  { href: "/dashboard/pillars", label: "Pillars",  icon: LayoutGrid },
+  { href: "/dashboard/tasks",   label: "Tasks",    icon: CheckSquare },
+  { href: "/dashboard/family",  label: "Family",   icon: Users },
 ];
 
 export function BottomNav() {
