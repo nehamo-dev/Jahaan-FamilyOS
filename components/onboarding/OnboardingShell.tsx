@@ -7,15 +7,15 @@ import { StepWrapper } from "./StepWrapper";
 
 import { Step1Calendar } from "./steps/Step1Calendar";
 import { Step2FamilyMembers } from "./steps/Step2FamilyMembers";
-import { Step3School } from "./steps/Step3School";
-import { Step4Gmail } from "./steps/Step4Gmail";
+import { Step3Gmail } from "./steps/Step3Gmail";
+import { Step4School } from "./steps/Step4School";
 import { Step5Notifications } from "./steps/Step5Notifications";
 
 const STEPS = [
   Step1Calendar,
   Step2FamilyMembers,
-  Step3School,
-  Step4Gmail,
+  Step3Gmail,
+  Step4School,
   Step5Notifications,
 ];
 

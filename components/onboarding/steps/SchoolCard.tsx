@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Loader2, Check } from "lucide-react";
+import { Loader2, Check, Sparkles } from "lucide-react";
 
 interface Child {
   id: string;
@@ -18,10 +19,20 @@ interface SchoolEntry {
   saving: boolean;
 }
 
+interface SchoolSuggestion {
+  name: string;
+  domain: string;
+}
+
 export function SchoolCard() {
+  const searchParams = useSearchParams();
+  const gmailConnected = searchParams.get("gmail") === "connected";
+
   const [loading, setLoading] = useState(true);
+  const [detecting, setDetecting] = useState(false);
   const [children, setChildren] = useState<Child[]>([]);
   const [entries, setEntries] = useState<SchoolEntry[]>([]);
+  const [suggestions, setSuggestions] = useState<SchoolSuggestion[]>([]);
 
   useEffect(() => { init(); }, []);
 
@@ -48,7 +59,6 @@ export function SchoolCard() {
     const kidList = (kids as Child[]) ?? [];
     setChildren(kidList);
 
-    // Load existing school entries
     if (kidList.length > 0) {
       const { data: schools } = await supabase
         .from("child_schools")
@@ -58,17 +68,34 @@ export function SchoolCard() {
       setEntries(
         kidList.map((k) => {
           const existing = schools?.find((s) => s.family_member_id === k.id);
-          return {
-            memberId: k.id,
-            schoolName: existing?.school_name ?? "",
-            grade: existing?.grade ?? "",
-            saved: !!existing,
-            saving: false,
-          };
+          return { memberId: k.id, schoolName: existing?.school_name ?? "", grade: existing?.grade ?? "", saved: !!existing, saving: false };
         })
       );
     }
+
     setLoading(false);
+
+    // Auto-detect if Gmail just connected and no schools saved yet
+    if (gmailConnected && kidList.length > 0) {
+      detectSchools();
+    }
+  }
+
+  async function detectSchools() {
+    setDetecting(true);
+    try {
+      const res = await fetch("/api/detect-schools");
+      const { schools } = await res.json();
+      setSuggestions(schools ?? []);
+    } catch {}
+    setDetecting(false);
+  }
+
+  function applySuggestion(memberId: string, name: string) {
+    setEntries((prev) =>
+      prev.map((e) => e.memberId === memberId ? { ...e, schoolName: name, saved: false } : e)
+    );
+    setSuggestions([]);
   }
 
   function update(memberId: string, field: "schoolName" | "grade", value: string) {
@@ -81,7 +108,6 @@ export function SchoolCard() {
     const entry = entries.find((e) => e.memberId === memberId);
     if (!entry || !entry.schoolName.trim()) return;
     setEntries((prev) => prev.map((e) => e.memberId === memberId ? { ...e, saving: true } : e));
-
     const supabase = createClient();
     await supabase.from("child_schools").upsert(
       { family_member_id: memberId, school_name: entry.schoolName.trim(), grade: entry.grade.trim() },
@@ -109,6 +135,38 @@ export function SchoolCard() {
 
   return (
     <div className="flex flex-col gap-3">
+      {/* Detecting banner */}
+      {detecting && (
+        <div className="bg-primary-light rounded-card p-3 flex items-center gap-2">
+          <Loader2 size={14} strokeWidth={1.5} className="animate-spin text-primary flex-shrink-0" />
+          <p className="text-[13px] text-primary">Looking for schools in your Gmail…</p>
+        </div>
+      )}
+
+      {/* Suggestions */}
+      {suggestions.length > 0 && (
+        <div className="bg-primary-light rounded-card p-3 flex flex-col gap-2">
+          <div className="flex items-center gap-1.5">
+            <Sparkles size={14} strokeWidth={1.5} className="text-primary flex-shrink-0" />
+            <p className="text-[13px] font-medium text-primary">Found in your Gmail — tap to apply</p>
+          </div>
+          <div className="flex flex-wrap gap-2 mt-1">
+            {suggestions.map((s) => (
+              <button
+                key={s.domain}
+                onClick={() => entries.length === 1
+                  ? applySuggestion(entries[0].memberId, s.name)
+                  : setEntries((prev) => prev.map((e) => ({ ...e, schoolName: s.name, saved: false })))
+                }
+                className="px-3 h-8 bg-white rounded-pill text-[13px] font-medium text-content-primary border border-[rgba(0,0,0,0.08)] active:scale-[0.98] transition-all"
+              >
+                {s.name}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {entries.map((entry) => {
         const child = children.find((c) => c.id === entry.memberId)!;
         return (
@@ -122,6 +180,7 @@ export function SchoolCard() {
               </div>
               <p className="text-[14px] font-medium text-content-primary">{child.name}</p>
               {entry.saved && <Check size={14} strokeWidth={2} className="text-success ml-auto" />}
+              {entry.saving && <Loader2 size={14} strokeWidth={1.5} className="animate-spin text-content-tertiary ml-auto" />}
             </div>
             <input
               type="text"
@@ -142,6 +201,7 @@ export function SchoolCard() {
           </div>
         );
       })}
+
       <p className="text-[12px] text-content-tertiary text-center">You can skip this and add schools later.</p>
     </div>
   );
