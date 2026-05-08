@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { ChevronLeft, ChevronRight, CalendarDays, CheckSquare, Plus } from "lucide-react";
+import { AddTaskSheet } from "./AddTaskSheet";
 
 interface CalEvent {
   id: string;
@@ -66,6 +67,7 @@ export function WeeklyCalendar() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [familyId, setFamilyId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [sheetOpen, setSheetOpen] = useState(false);
 
   useEffect(() => {
     async function loadFamily() {
@@ -231,9 +233,18 @@ export function WeeklyCalendar() {
       </div>
 
       {/* FAB */}
-      <button className="fixed bottom-24 right-5 w-12 h-12 bg-primary rounded-full flex items-center justify-center shadow-float active:scale-95 transition-all z-10">
+      <button
+        onClick={() => setSheetOpen(true)}
+        className="fixed bottom-24 right-5 w-12 h-12 bg-primary rounded-full flex items-center justify-center shadow-float active:scale-95 transition-all z-10"
+      >
         <Plus size={22} strokeWidth={2} className="text-white" />
       </button>
+
+      <AddTaskSheet
+        open={sheetOpen}
+        onClose={() => setSheetOpen(false)}
+        onSaved={() => familyId && loadWeekData()}
+      />
     </div>
   );
 }
