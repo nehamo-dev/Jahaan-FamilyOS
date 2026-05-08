@@ -13,7 +13,7 @@ export function CalendarConnectCard() {
   async function handleConnect() {
     setLoading(true);
     const supabase = createClient();
-    const next = encodeURIComponent("/onboarding?calendar=connected");
+    const next = encodeURIComponent("/onboarding?step=1&calendar=connected");
     await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {

@@ -14,7 +14,7 @@ export function GmailConnectCard() {
     setLoading(true);
     const supabase = createClient();
     const calendarParam = searchParams.get("calendar") === "connected" ? "&calendar=connected" : "";
-    const next = encodeURIComponent(`/onboarding?gmail=connected${calendarParam}`);
+    const next = encodeURIComponent(`/onboarding?step=3&gmail=connected${calendarParam}`);
     await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {

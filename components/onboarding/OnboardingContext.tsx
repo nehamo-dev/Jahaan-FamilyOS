@@ -12,8 +12,8 @@ interface OnboardingContextType {
 
 const OnboardingContext = createContext<OnboardingContextType | null>(null);
 
-export function OnboardingProvider({ children }: { children: React.ReactNode }) {
-  const [step, setStep] = useState(1);
+export function OnboardingProvider({ children, initialStep = 1 }: { children: React.ReactNode; initialStep?: number }) {
+  const [step, setStep] = useState(initialStep);
   const totalSteps = 5;
 
   const next = useCallback(() => setStep((s) => Math.min(s + 1, totalSteps)), [totalSteps]);
