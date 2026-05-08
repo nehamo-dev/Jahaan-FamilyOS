@@ -129,7 +129,8 @@ export function FamilyMembersCard() {
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-[14px] font-medium text-content-primary">{m.name}</p>
-            <p className="text-[12px] text-content-tertiary">{ROLE_LABELS[m.role]}</p>
+                <p className="text-[12px] text-content-tertiary">{ROLE_LABELS[m.role]}</p>
+          {/* TODO: show invite status badge here once member_invites flow is built */}
           </div>
           {m.user_id !== currentUserId && (
             <button
