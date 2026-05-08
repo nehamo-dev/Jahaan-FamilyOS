@@ -17,16 +17,17 @@ function guessPillar(title: string, description?: string): string {
   return "none";
 }
 
-export async function POST() {
+export async function POST(request: Request) {
   const supabase = await createClient();
-  const { data: { session } } = await supabase.auth.getSession();
-
-  if (!session?.provider_token) {
-    return NextResponse.json({ error: "No provider token" }, { status: 401 });
-  }
-
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  // Provider token must be passed from client (not persisted server-side)
+  const body = await request.json().catch(() => ({}));
+  const providerToken: string | undefined = body.provider_token;
+  if (!providerToken) {
+    return NextResponse.json({ error: "No provider token — connect Google Calendar first" }, { status: 401 });
+  }
 
   // Get family
   const { data: family } = await supabase
@@ -40,10 +41,13 @@ export async function POST() {
 
     const res = await fetch(
       `https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=${timeMin}&timeMax=${timeMax}&maxResults=100&singleEvents=true&orderBy=startTime`,
-      { headers: { Authorization: `Bearer ${session.provider_token}` } }
+      { headers: { Authorization: `Bearer ${providerToken}` } }
     );
 
-    if (!res.ok) return NextResponse.json({ error: "Google Calendar error", status: res.status }, { status: 502 });
+    if (!res.ok) {
+      const errText = await res.text();
+      return NextResponse.json({ error: "Google Calendar error", detail: errText, status: res.status }, { status: 502 });
+    }
 
     const { items } = await res.json();
     if (!items?.length) return NextResponse.json({ synced: 0 });

@@ -68,6 +68,7 @@ export function WeeklyCalendar() {
   const [familyId, setFamilyId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
+  const [noCalendarToken, setNoCalendarToken] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
 
   useEffect(() => {
@@ -96,7 +97,18 @@ export function WeeklyCalendar() {
 
   async function syncCalendar() {
     setSyncing(true);
-    try { await fetch("/api/sync-calendar", { method: "POST" }); } catch {}
+    try {
+      const supabase = createClient();
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.provider_token;
+      if (!token) { setNoCalendarToken(true); setSyncing(false); if (familyId) loadWeekData(); return; }
+      setNoCalendarToken(false);
+      await fetch("/api/sync-calendar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ provider_token: token }),
+      });
+    } catch {}
     setSyncing(false);
     if (familyId) loadWeekData();
   }
@@ -200,7 +212,14 @@ export function WeeklyCalendar() {
           </div>
         )}
 
-        {!loading && !hasAnything && (
+        {!loading && noCalendarToken && (
+          <div className="bg-primary-light border border-[rgba(91,79,207,0.15)] rounded-card p-4 flex flex-col gap-2">
+            <p className="text-[13px] font-medium text-primary">Calendar not synced</p>
+            <p className="text-[12px] text-content-secondary">Your Google session expired. Sign out and sign back in to re-sync your calendar.</p>
+          </div>
+        )}
+
+        {!loading && !hasAnything && !noCalendarToken && (
           <div className="bg-white border border-[rgba(0,0,0,0.07)] rounded-card p-6 flex flex-col items-center gap-2 text-center">
             <CalendarDays size={28} strokeWidth={1.5} className="text-content-tertiary" />
             <p className="text-[14px] text-content-secondary">Nothing scheduled this week</p>
