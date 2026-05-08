@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { ChevronLeft, ChevronRight, CalendarDays, CheckSquare, Plus, RefreshCw } from "lucide-react";
 import { AddTaskSheet } from "./AddTaskSheet";
+import { ReconnectCalendarBanner } from "@/components/ui/ReconnectCalendarBanner";
 
 interface CalEvent {
   id: string;
@@ -212,12 +213,7 @@ export function WeeklyCalendar() {
           </div>
         )}
 
-        {!loading && noCalendarToken && (
-          <div className="bg-primary-light border border-[rgba(91,79,207,0.15)] rounded-card p-4 flex flex-col gap-2">
-            <p className="text-[13px] font-medium text-primary">Calendar not synced</p>
-            <p className="text-[12px] text-content-secondary">Your Google session expired. Sign out and sign back in to re-sync your calendar.</p>
-          </div>
-        )}
+        {!loading && noCalendarToken && <ReconnectCalendarBanner />}
 
         {!loading && !hasAnything && !noCalendarToken && (
           <div className="bg-white border border-[rgba(0,0,0,0.07)] rounded-card p-6 flex flex-col items-center gap-2 text-center">

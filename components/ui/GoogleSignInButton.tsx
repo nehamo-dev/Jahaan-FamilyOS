@@ -14,6 +14,7 @@ export function GoogleSignInButton() {
       options: {
         redirectTo: `${window.location.origin}/auth/callback`,
         scopes: "email profile https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/gmail.readonly",
+        queryParams: { access_type: "offline", prompt: "consent" },
       },
     });
     setLoading(false);
