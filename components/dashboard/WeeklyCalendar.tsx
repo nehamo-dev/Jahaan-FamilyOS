@@ -28,11 +28,9 @@ const PILLAR_COLORS: Record<string, string> = {
   "kids-activities": "#D85A30",
 };
 
-const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-
 function startOfWeek(d: Date) {
-  const day = d.getDay(); // 0=Sun
-  const diff = day === 0 ? -6 : 1 - day; // Monday-based
+  const day = d.getDay();
+  const diff = day === 0 ? -6 : 1 - day;
   const mon = new Date(d);
   mon.setDate(d.getDate() + diff);
   mon.setHours(0, 0, 0, 0);
@@ -53,12 +51,17 @@ function formatTime(iso: string) {
   return new Date(iso).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
 }
 
+function formatDayHeader(d: Date, today: Date) {
+  if (isSameDay(d, today)) return "Today";
+  if (isSameDay(d, addDays(today, 1))) return "Tomorrow";
+  return d.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" });
+}
+
 export function WeeklyCalendar() {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
   const [weekStart, setWeekStart] = useState(() => startOfWeek(today));
-  const [selected, setSelected] = useState(today);
   const [events, setEvents] = useState<CalEvent[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [familyId, setFamilyId] = useState<string | null>(null);
@@ -107,30 +110,26 @@ export function WeeklyCalendar() {
   }
 
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
-
-  const selectedEvents = events.filter((e) => isSameDay(new Date(e.start_at), selected));
-  const selectedTasks = tasks.filter((t) => t.due_date && isSameDay(new Date(t.due_date), selected));
-  const hasContent = selectedEvents.length > 0 || selectedTasks.length > 0;
-
   const monthLabel = weekStart.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+  const hasAnything = events.length > 0 || tasks.length > 0;
 
   return (
     <div className="flex flex-col">
-      {/* Month + week nav */}
-      <div className="flex items-center justify-between px-5 pt-[max(20px,env(safe-area-inset-top))] pb-3">
+      {/* Header */}
+      <div className="flex items-center justify-between px-5 pt-[max(20px,env(safe-area-inset-top))] pb-4 border-b border-[rgba(0,0,0,0.06)]">
         <h1 className="text-[18px] font-semibold text-content-primary">{monthLabel}</h1>
         <div className="flex items-center gap-1">
           <button
-            onClick={() => { setWeekStart(addDays(weekStart, -7)); }}
+            onClick={() => setWeekStart(addDays(weekStart, -7))}
             className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[rgba(0,0,0,0.05)] active:scale-95 transition-all"
           >
             <ChevronLeft size={18} strokeWidth={1.5} className="text-content-secondary" />
           </button>
           <button
-            onClick={() => { setWeekStart(startOfWeek(today)); setSelected(today); }}
+            onClick={() => setWeekStart(startOfWeek(today))}
             className="px-3 h-7 rounded-pill text-[12px] font-medium text-primary bg-primary-light active:scale-95 transition-all"
           >
-            Today
+            This week
           </button>
           <button
             onClick={() => setWeekStart(addDays(weekStart, 7))}
@@ -141,90 +140,100 @@ export function WeeklyCalendar() {
         </div>
       </div>
 
-      {/* Day strip */}
-      <div className="flex px-3 pb-3 border-b border-[rgba(0,0,0,0.06)]">
+      {/* Week at a glance strip */}
+      <div className="flex px-3 py-3 border-b border-[rgba(0,0,0,0.06)] gap-1">
         {weekDays.map((day, i) => {
           const isToday = isSameDay(day, today);
-          const isSelected = isSameDay(day, selected);
           const dayEvents = events.filter((e) => isSameDay(new Date(e.start_at), day));
           const dayTasks = tasks.filter((t) => t.due_date && isSameDay(new Date(t.due_date), day));
-          const hasDots = dayEvents.length > 0 || dayTasks.length > 0;
+          const count = dayEvents.length + dayTasks.length;
 
           return (
-            <button
-              key={i}
-              onClick={() => setSelected(day)}
-              className="flex-1 flex flex-col items-center gap-1 py-2 rounded-card transition-all active:scale-95"
-              style={{ backgroundColor: isSelected ? "#5B4FCF" : "transparent" }}
-            >
-              <span className={`text-[11px] font-medium ${isSelected ? "text-white/70" : "text-content-tertiary"}`}>
-                {DAYS[i]}
+            <div key={i} className="flex-1 flex flex-col items-center gap-1">
+              <span className={`text-[10px] font-medium ${isToday ? "text-primary" : "text-content-tertiary"}`}>
+                {["M","T","W","T","F","S","S"][i]}
               </span>
-              <span className={`text-[15px] font-semibold w-8 h-8 flex items-center justify-center rounded-full ${
-                isSelected ? "text-white" : isToday ? "text-primary" : "text-content-primary"
-              }`}>
-                {day.getDate()}
-              </span>
-              {hasDots
-                ? <div className="flex gap-0.5">
-                    {dayEvents.slice(0, 2).map((e) => (
-                      <div key={e.id} className="w-1 h-1 rounded-full"
-                        style={{ backgroundColor: isSelected ? "rgba(255,255,255,0.6)" : (PILLAR_COLORS[e.pillar ?? ""] ?? "#A0A0A0") }} />
+              <div className={`w-7 h-7 rounded-full flex items-center justify-center ${isToday ? "bg-primary" : ""}`}>
+                <span className={`text-[13px] font-semibold ${isToday ? "text-white" : "text-content-primary"}`}>
+                  {day.getDate()}
+                </span>
+              </div>
+              {count > 0
+                ? <div className="flex gap-0.5 flex-wrap justify-center">
+                    {Array.from({ length: Math.min(count, 3) }).map((_, j) => (
+                      <div key={j} className="w-1 h-1 rounded-full bg-primary opacity-60" />
                     ))}
                   </div>
-                : <div className="h-1" />
+                : <div className="h-1.5" />
               }
-            </button>
+            </div>
           );
         })}
       </div>
 
-      {/* Selected day header */}
-      <div className="flex items-center justify-between px-5 pt-4 pb-2">
-        <h2 className="text-[14px] font-semibold text-content-primary">
-          {isSameDay(selected, today) ? "Today" : selected.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" })}
-        </h2>
-        <button className="w-8 h-8 bg-primary rounded-full flex items-center justify-center active:scale-95 transition-all shadow-float">
-          <Plus size={16} strokeWidth={2} className="text-white" />
-        </button>
-      </div>
-
-      {/* Day content */}
-      <div className="px-5 flex flex-col gap-2 pb-4">
+      {/* Full week content */}
+      <div className="px-5 pt-4 flex flex-col gap-5 pb-6">
         {loading && (
-          <div className="h-20 rounded-card bg-white border border-[rgba(0,0,0,0.07)] animate-pulse" />
-        )}
-
-        {!loading && !hasContent && (
-          <div className="bg-white border border-[rgba(0,0,0,0.07)] rounded-card p-5 flex flex-col items-center gap-2 text-center">
-            <CalendarDays size={24} strokeWidth={1.5} className="text-content-tertiary" />
-            <p className="text-[13px] text-content-secondary">Nothing scheduled</p>
+          <div className="space-y-3">
+            {[1,2,3].map(i => <div key={i} className="h-16 rounded-card bg-white border border-[rgba(0,0,0,0.07)] animate-pulse" />)}
           </div>
         )}
 
-        {selectedEvents.map((e) => (
-          <div key={e.id} className="bg-white border border-[rgba(0,0,0,0.07)] rounded-card px-4 py-3 flex items-center gap-3">
-            <div className="w-1 h-10 rounded-full flex-shrink-0"
-              style={{ backgroundColor: PILLAR_COLORS[e.pillar ?? ""] ?? "#A0A0A0" }} />
-            <div className="flex-1 min-w-0">
-              <p className="text-[14px] font-medium text-content-primary truncate">{e.title}</p>
-              <p className="text-[12px] text-content-tertiary">{formatTime(e.start_at)}</p>
-            </div>
+        {!loading && !hasAnything && (
+          <div className="bg-white border border-[rgba(0,0,0,0.07)] rounded-card p-6 flex flex-col items-center gap-2 text-center">
+            <CalendarDays size={28} strokeWidth={1.5} className="text-content-tertiary" />
+            <p className="text-[14px] text-content-secondary">Nothing scheduled this week</p>
+            <p className="text-[12px] text-content-tertiary">Tap + to add something</p>
           </div>
-        ))}
+        )}
 
-        {selectedTasks.map((t) => (
-          <div key={t.id} className="bg-white border border-[rgba(0,0,0,0.07)] rounded-card px-4 py-3 flex items-center gap-3">
-            <div className="w-1 h-10 rounded-full flex-shrink-0"
-              style={{ backgroundColor: PILLAR_COLORS[t.pillar] ?? "#A0A0A0" }} />
-            <CheckSquare size={15} strokeWidth={1.5} className="text-content-tertiary flex-shrink-0" />
-            <div className="flex-1 min-w-0">
-              <p className="text-[14px] font-medium text-content-primary truncate">{t.title}</p>
-              <p className="text-[12px] text-content-tertiary capitalize">{t.pillar.replace("-", " ")}</p>
+        {!loading && weekDays.map((day, i) => {
+          const dayEvents = events.filter((e) => isSameDay(new Date(e.start_at), day));
+          const dayTasks = tasks.filter((t) => t.due_date && isSameDay(new Date(t.due_date), day));
+          if (dayEvents.length === 0 && dayTasks.length === 0) return null;
+
+          const isToday = isSameDay(day, today);
+
+          return (
+            <div key={i} className="flex flex-col gap-2">
+              <div className="flex items-center gap-2">
+                <p className={`text-[13px] font-semibold ${isToday ? "text-primary" : "text-content-secondary"}`}>
+                  {formatDayHeader(day, today)}
+                </p>
+                <div className="flex-1 h-px bg-[rgba(0,0,0,0.06)]" />
+              </div>
+
+              {dayEvents.map((e) => (
+                <div key={e.id} className="bg-white border border-[rgba(0,0,0,0.07)] rounded-card px-4 py-3 flex items-center gap-3">
+                  <div className="w-1 self-stretch rounded-full flex-shrink-0"
+                    style={{ backgroundColor: PILLAR_COLORS[e.pillar ?? ""] ?? "#A0A0A0" }} />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[14px] font-medium text-content-primary truncate">{e.title}</p>
+                    <p className="text-[12px] text-content-tertiary">{formatTime(e.start_at)}</p>
+                  </div>
+                </div>
+              ))}
+
+              {dayTasks.map((t) => (
+                <div key={t.id} className="bg-white border border-[rgba(0,0,0,0.07)] rounded-card px-4 py-3 flex items-center gap-3">
+                  <div className="w-1 self-stretch rounded-full flex-shrink-0"
+                    style={{ backgroundColor: PILLAR_COLORS[t.pillar] ?? "#A0A0A0" }} />
+                  <CheckSquare size={15} strokeWidth={1.5} className="text-content-tertiary flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[14px] font-medium text-content-primary truncate">{t.title}</p>
+                    <p className="text-[12px] text-content-tertiary capitalize">{t.pillar.replace("-", " ")}</p>
+                  </div>
+                </div>
+              ))}
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
+
+      {/* FAB */}
+      <button className="fixed bottom-24 right-5 w-12 h-12 bg-primary rounded-full flex items-center justify-center shadow-float active:scale-95 transition-all z-10">
+        <Plus size={22} strokeWidth={2} className="text-white" />
+      </button>
     </div>
   );
 }
