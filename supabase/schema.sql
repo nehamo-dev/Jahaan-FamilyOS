@@ -179,43 +179,46 @@ alter table gmail_scan_logs         enable row level security;
 alter table processed_emails        enable row level security;
 
 
--- ── 3. RLS POLICIES (all tables exist now) ───
+-- ── 3. HELPER FUNCTIONS (security definer — bypass RLS to avoid recursion) ───
+
+create or replace function get_my_family_ids()
+returns setof uuid language sql security definer stable set search_path = public as $$
+  select family_id from family_members where user_id = auth.uid()
+$$;
+
+create or replace function get_my_parent_family_ids()
+returns setof uuid language sql security definer stable set search_path = public as $$
+  select family_id from family_members where user_id = auth.uid() and role = 'parent'
+$$;
+
+create or replace function get_my_parent_or_caregiver_family_ids()
+returns setof uuid language sql security definer stable set search_path = public as $$
+  select family_id from family_members where user_id = auth.uid() and role in ('parent','caregiver')
+$$;
+
+
+-- ── 4. RLS POLICIES ──────────────────────────
 
 -- families
 create policy "family members can view family" on families
-  for select using (
-    id in (select family_id from family_members where user_id = auth.uid())
-  );
+  for select using (id in (select get_my_family_ids()));
 create policy "creator can manage family" on families
   for all using (created_by = auth.uid());
 
 -- family_members
-create policy "family members can view members" on family_members
-  for select using (
-    family_id in (select family_id from family_members where user_id = auth.uid())
-  );
 create policy "creator can seed themselves as first member" on family_members
   for insert with check (
     user_id = auth.uid()
     and family_id in (select id from families where created_by = auth.uid())
   );
-
+create policy "family members can view members" on family_members
+  for select using (family_id in (select get_my_family_ids()));
 create policy "parents can manage members" on family_members
-  for all using (
-    family_id in (
-      select family_id from family_members
-      where user_id = auth.uid() and role = 'parent'
-    )
-  );
+  for all using (family_id in (select get_my_parent_family_ids()));
 
 -- member_invites
 create policy "parents can manage invites" on member_invites
-  for all using (
-    family_id in (
-      select family_id from family_members
-      where user_id = auth.uid() and role = 'parent'
-    )
-  );
+  for all using (family_id in (select get_my_parent_family_ids()));
 
 -- user_calendars
 create policy "owner only calendars" on user_calendars
@@ -223,45 +226,25 @@ create policy "owner only calendars" on user_calendars
 
 -- calendar_events
 create policy "family members can view events" on calendar_events
-  for select using (
-    family_id in (select family_id from family_members where user_id = auth.uid())
-  );
+  for select using (family_id in (select get_my_family_ids()));
 create policy "owner can manage events" on calendar_events
   for all using (user_id = auth.uid());
 
 -- child_schools
 create policy "family members can view schools" on child_schools
   for select using (
-    family_member_id in (
-      select id from family_members
-      where family_id in (
-        select family_id from family_members where user_id = auth.uid()
-      )
-    )
+    family_member_id in (select id from family_members where family_id in (select get_my_family_ids()))
   );
 create policy "parents can manage schools" on child_schools
   for all using (
-    family_member_id in (
-      select id from family_members
-      where family_id in (
-        select family_id from family_members
-        where user_id = auth.uid() and role = 'parent'
-      )
-    )
+    family_member_id in (select id from family_members where family_id in (select get_my_parent_family_ids()))
   );
 
 -- family_settings
 create policy "family members can view settings" on family_settings
-  for select using (
-    family_id in (select family_id from family_members where user_id = auth.uid())
-  );
+  for select using (family_id in (select get_my_family_ids()));
 create policy "parents can manage settings" on family_settings
-  for all using (
-    family_id in (
-      select family_id from family_members
-      where user_id = auth.uid() and role = 'parent'
-    )
-  );
+  for all using (family_id in (select get_my_parent_family_ids()));
 
 -- user_integrations
 create policy "owner only integrations" on user_integrations
@@ -269,43 +252,21 @@ create policy "owner only integrations" on user_integrations
 
 -- tasks
 create policy "family members can view tasks" on tasks
-  for select using (
-    family_id in (select family_id from family_members where user_id = auth.uid())
-  );
+  for select using (family_id in (select get_my_family_ids()));
 create policy "parents and caregivers can manage tasks" on tasks
-  for all using (
-    family_id in (
-      select family_id from family_members
-      where user_id = auth.uid() and role in ('parent','caregiver')
-    )
-  );
+  for all using (family_id in (select get_my_parent_or_caregiver_family_ids()));
 
 -- task_comments
 create policy "family members can manage comments" on task_comments
   for all using (
-    task_id in (
-      select id from tasks
-      where family_id in (
-        select family_id from family_members where user_id = auth.uid()
-      )
-    )
+    task_id in (select id from tasks where family_id in (select get_my_family_ids()))
   );
 
 -- suggested_tasks
 create policy "parents can view suggestions" on suggested_tasks
-  for select using (
-    family_id in (
-      select family_id from family_members
-      where user_id = auth.uid() and role = 'parent'
-    )
-  );
+  for select using (family_id in (select get_my_parent_family_ids()));
 create policy "parents can update suggestions" on suggested_tasks
-  for update using (
-    family_id in (
-      select family_id from family_members
-      where user_id = auth.uid() and role = 'parent'
-    )
-  );
+  for update using (family_id in (select get_my_parent_family_ids()));
 
 -- notification_preferences
 create policy "owner only notifications" on notification_preferences

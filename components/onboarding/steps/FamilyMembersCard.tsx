@@ -50,7 +50,7 @@ export function FamilyMembersCard() {
         .insert({ created_by: user.id, name: "My Family" })
         .select("id")
         .single();
-      if (famErr || !created) { setError("Could not create family."); setLoading(false); return; }
+      if (famErr || !created) { setError(`Could not create family: ${famErr?.message ?? "no data returned"}`); setLoading(false); return; }
       fid = created.id;
     }
     setFamilyId(fid);
@@ -64,13 +64,14 @@ export function FamilyMembersCard() {
       .maybeSingle();
 
     if (!selfMember) {
-      await supabase.from("family_members").insert({
+      const { error: seedErr } = await supabase.from("family_members").insert({
         family_id: fid,
         user_id: user.id,
         name: (user.user_metadata?.full_name as string | undefined)?.split(" ")[0] ?? "Me",
         role: "parent" as Role,
         avatar_color: AVATAR_COLORS[0],
       });
+      if (seedErr) { setError(`Could not add you as member: ${seedErr.message}`); setLoading(false); return; }
     }
 
     const { data: all } = await supabase
@@ -93,7 +94,7 @@ export function FamilyMembersCard() {
       .insert({ family_id: familyId, user_id: null, name: newName.trim(), role: newRole, avatar_color: color })
       .select("id, name, role, avatar_color, user_id")
       .single();
-    if (insErr) { setError(insErr.message); }
+    if (insErr) { setError(`Add member failed: ${insErr.message}`); }
     else if (data) { setMembers((m) => [...m, data as Member]); setNewName(""); setNewRole("child"); }
     setAdding(false);
   }
