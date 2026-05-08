@@ -194,6 +194,12 @@ create policy "family members can view members" on family_members
   for select using (
     family_id in (select family_id from family_members where user_id = auth.uid())
   );
+create policy "creator can seed themselves as first member" on family_members
+  for insert with check (
+    user_id = auth.uid()
+    and family_id in (select id from families where created_by = auth.uid())
+  );
+
 create policy "parents can manage members" on family_members
   for all using (
     family_id in (

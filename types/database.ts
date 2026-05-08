@@ -13,80 +13,30 @@ export type TaskPriority = "low" | "medium" | "high";
 export type EventSource = "gcal_sync" | "gmail_scan";
 export type WeekStart = "monday" | "sunday";
 
+type TableDef<R, I, U> = { Row: R; Insert: I; Update: U; Relationships: [] };
+
 export interface Database {
   public: {
     Tables: {
-      families: {
-        Row: Family;
-        Insert: Omit<Family, "id" | "created_at">;
-        Update: Partial<Omit<Family, "id">>;
-      };
-      family_members: {
-        Row: FamilyMember;
-        Insert: Omit<FamilyMember, "id" | "created_at">;
-        Update: Partial<Omit<FamilyMember, "id">>;
-      };
-      member_invites: {
-        Row: MemberInvite;
-        Insert: Omit<MemberInvite, "id">;
-        Update: Partial<Omit<MemberInvite, "id">>;
-      };
-      user_calendars: {
-        Row: UserCalendar;
-        Insert: Omit<UserCalendar, "id" | "created_at">;
-        Update: Partial<Omit<UserCalendar, "id">>;
-      };
-      calendar_events: {
-        Row: CalendarEvent;
-        Insert: Omit<CalendarEvent, "id" | "created_at">;
-        Update: Partial<Omit<CalendarEvent, "id">>;
-      };
-      child_schools: {
-        Row: ChildSchool;
-        Insert: Omit<ChildSchool, "id" | "created_at">;
-        Update: Partial<Omit<ChildSchool, "id">>;
-      };
-      family_settings: {
-        Row: FamilySettings;
-        Insert: Omit<FamilySettings, "id" | "created_at" | "updated_at">;
-        Update: Partial<Omit<FamilySettings, "id">>;
-      };
-      user_integrations: {
-        Row: UserIntegration;
-        Insert: Omit<UserIntegration, "id" | "created_at">;
-        Update: Partial<Omit<UserIntegration, "id">>;
-      };
-      tasks: {
-        Row: Task;
-        Insert: Omit<Task, "id" | "created_at" | "updated_at">;
-        Update: Partial<Omit<Task, "id">>;
-      };
-      task_comments: {
-        Row: TaskComment;
-        Insert: Omit<TaskComment, "id" | "created_at">;
-        Update: Partial<Omit<TaskComment, "id">>;
-      };
-      suggested_tasks: {
-        Row: SuggestedTask;
-        Insert: Omit<SuggestedTask, "id" | "created_at">;
-        Update: Partial<Omit<SuggestedTask, "id">>;
-      };
-      notification_preferences: {
-        Row: NotificationPreference;
-        Insert: Omit<NotificationPreference, "id">;
-        Update: Partial<Omit<NotificationPreference, "id">>;
-      };
-      gmail_scan_logs: {
-        Row: GmailScanLog;
-        Insert: Omit<GmailScanLog, "id">;
-        Update: Partial<Omit<GmailScanLog, "id">>;
-      };
-      processed_emails: {
-        Row: ProcessedEmail;
-        Insert: Omit<ProcessedEmail, "id">;
-        Update: Partial<Omit<ProcessedEmail, "id">>;
-      };
+      families:                 TableDef<Family,               Omit<Family, "id" | "created_at">,                    Partial<Omit<Family, "id">>>;
+      family_members:           TableDef<FamilyMember,         Omit<FamilyMember, "id" | "created_at">,              Partial<Omit<FamilyMember, "id">>>;
+      member_invites:           TableDef<MemberInvite,         Omit<MemberInvite, "id">,                             Partial<Omit<MemberInvite, "id">>>;
+      user_calendars:           TableDef<UserCalendar,         Omit<UserCalendar, "id" | "created_at">,              Partial<Omit<UserCalendar, "id">>>;
+      calendar_events:          TableDef<CalendarEvent,        Omit<CalendarEvent, "id" | "created_at">,             Partial<Omit<CalendarEvent, "id">>>;
+      child_schools:            TableDef<ChildSchool,          Omit<ChildSchool, "id" | "created_at">,               Partial<Omit<ChildSchool, "id">>>;
+      family_settings:          TableDef<FamilySettings,       Omit<FamilySettings, "id" | "created_at" | "updated_at">, Partial<Omit<FamilySettings, "id">>>;
+      user_integrations:        TableDef<UserIntegration,      Omit<UserIntegration, "id" | "created_at">,           Partial<Omit<UserIntegration, "id">>>;
+      tasks:                    TableDef<Task,                  Omit<Task, "id" | "created_at" | "updated_at">,       Partial<Omit<Task, "id">>>;
+      task_comments:            TableDef<TaskComment,          Omit<TaskComment, "id" | "created_at">,               Partial<Omit<TaskComment, "id">>>;
+      suggested_tasks:          TableDef<SuggestedTask,        Omit<SuggestedTask, "id" | "created_at">,             Partial<Omit<SuggestedTask, "id">>>;
+      notification_preferences: TableDef<NotificationPreference, Omit<NotificationPreference, "id">,                 Partial<Omit<NotificationPreference, "id">>>;
+      gmail_scan_logs:          TableDef<GmailScanLog,         Omit<GmailScanLog, "id">,                             Partial<Omit<GmailScanLog, "id">>>;
+      processed_emails:         TableDef<ProcessedEmail,       Omit<ProcessedEmail, "id">,                           Partial<Omit<ProcessedEmail, "id">>>;
     };
+    Views: Record<string, never>;
+    Functions: Record<string, never>;
+    Enums: Record<string, never>;
+    CompositeTypes: Record<string, never>;
   };
 }
 
