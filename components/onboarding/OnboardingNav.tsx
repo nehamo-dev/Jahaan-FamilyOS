@@ -22,7 +22,7 @@ export function OnboardingNav() {
       {!isFirst && (
         <button
           onClick={back}
-          className="h-11 px-5 rounded-card border border-[rgba(0,0,0,0.12)] text-text-secondary text-[15px] font-medium tracking-[0.005em] active:scale-[0.98] transition-all duration-150"
+          className="h-11 px-5 rounded-card border border-[rgba(0,0,0,0.12)] text-content-secondary text-[15px] font-medium tracking-[0.005em] active:scale-[0.98] transition-all duration-150"
         >
           Back
         </button>

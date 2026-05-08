@@ -1,5 +1,7 @@
+import { Suspense } from "react";
 import { CalendarDays } from "lucide-react";
 import { StepHero } from "../StepHero";
+import { CalendarConnectCard } from "./CalendarConnectCard";
 
 export function Step1Calendar() {
   return (
@@ -9,10 +11,9 @@ export function Step1Calendar() {
         title="Connect your calendar"
         subtitle="Jahaan reads your existing events and organizes them — nothing changes without you."
       />
-      {/* Phase 3 will build the connection card and OAuth flow here */}
-      <div className="bg-white border border-[rgba(0,0,0,0.08)] rounded-card p-4 text-text-tertiary text-sm text-center">
-        Calendar connection — coming in Phase 3
-      </div>
+      <Suspense fallback={<div className="h-[120px] rounded-card bg-white border border-[rgba(0,0,0,0.08)] animate-pulse" />}>
+        <CalendarConnectCard />
+      </Suspense>
     </div>
   );
 }

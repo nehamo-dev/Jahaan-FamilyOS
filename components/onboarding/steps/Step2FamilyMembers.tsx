@@ -9,7 +9,7 @@ export function Step2FamilyMembers() {
         title="Who's in the family?"
         subtitle="Add everyone — parents, kids, caregivers. You can always add more later."
       />
-      <div className="bg-white border border-[rgba(0,0,0,0.08)] rounded-card p-4 text-text-tertiary text-sm text-center">
+      <div className="bg-white border border-[rgba(0,0,0,0.08)] rounded-card p-4 text-content-tertiary text-sm text-center">
         Family members — Phase 4
       </div>
     </div>

@@ -9,7 +9,7 @@ export function Step4School() {
         title="School and invites"
         subtitle="Set up schools for your kids and invite others to join."
       />
-      <div className="bg-white border border-[rgba(0,0,0,0.08)] rounded-card p-4 text-text-tertiary text-sm text-center">
+      <div className="bg-white border border-[rgba(0,0,0,0.08)] rounded-card p-4 text-content-tertiary text-sm text-center">
         School setup + invites — Phase 6
       </div>
     </div>

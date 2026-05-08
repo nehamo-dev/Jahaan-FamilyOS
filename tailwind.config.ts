@@ -18,8 +18,8 @@ const config: Config = {
         warning: "#BA7517",
         danger: "#C0392B",
         surface: "#FFFFFF",
-        bg: "#F7F7F5",
-        text: {
+        "app-bg": "#F7F7F5",
+        content: {
           primary: "#1A1A1A",
           secondary: "#6B6B6B",
           tertiary: "#A0A0A0",

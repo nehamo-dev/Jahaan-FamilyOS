@@ -13,7 +13,7 @@ export function GoogleSignInButton() {
       provider: "google",
       options: {
         redirectTo: `${window.location.origin}/auth/callback`,
-        scopes: "https://www.googleapis.com/auth/calendar.readonly",
+        scopes: "email profile",
       },
     });
     setLoading(false);
@@ -45,9 +45,9 @@ export function GoogleSignInButton() {
         />
       </svg>
 
-      <span className="flex-1 text-center text-[15px] font-medium text-text-primary">
+      <span className="flex-1 text-center text-[15px] font-medium text-content-primary">
         {loading ? (
-          <span className="inline-block w-4 h-4 border-2 border-text-tertiary border-t-transparent rounded-full animate-spin" />
+          <span className="inline-block w-4 h-4 border-2 border-content-tertiary border-t-transparent rounded-full animate-spin" />
         ) : (
           "Continue with Google"
         )}

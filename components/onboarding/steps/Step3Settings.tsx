@@ -9,7 +9,7 @@ export function Step3Settings() {
         title="A few quick preferences"
         subtitle="You can change these anytime in settings."
       />
-      <div className="bg-white border border-[rgba(0,0,0,0.08)] rounded-card p-4 text-text-tertiary text-sm text-center">
+      <div className="bg-white border border-[rgba(0,0,0,0.08)] rounded-card p-4 text-content-tertiary text-sm text-center">
         Default settings — Phase 5
       </div>
     </div>

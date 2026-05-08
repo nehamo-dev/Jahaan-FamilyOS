@@ -52,7 +52,7 @@ export default function LandingPage() {
           <h1 className="text-[32px] font-semibold text-primary leading-tight tracking-[-0.01em]">
             Jahaan
           </h1>
-          <p className="text-[16px] text-text-secondary text-center">
+          <p className="text-[16px] text-content-secondary text-center">
             your family, all in one place
           </p>
 
@@ -88,10 +88,10 @@ export default function LandingPage() {
               >
                 <Icon size={18} strokeWidth={1.5} style={{ color }} />
               </div>
-              <p className="text-[14px] text-text-primary">
+              <p className="text-[14px] text-content-primary">
                 <span className="font-medium">{label}</span>
-                <span className="text-text-tertiary"> · </span>
-                <span className="text-text-secondary">{description}</span>
+                <span className="text-content-tertiary"> · </span>
+                <span className="text-content-secondary">{description}</span>
               </p>
             </div>
           ))}
@@ -99,9 +99,9 @@ export default function LandingPage() {
 
         {/* ── Bottom zone ── */}
         <div className="w-full flex flex-col items-center gap-3 pb-4">
-          <p className="text-[12px] text-text-tertiary">3-minute setup</p>
+          <p className="text-[12px] text-content-tertiary">3-minute setup</p>
           <GoogleSignInButton />
-          <p className="text-[11px] text-text-tertiary text-center">
+          <p className="text-[11px] text-content-tertiary text-center">
             We&apos;ll use this to connect your calendar.
           </p>
         </div>

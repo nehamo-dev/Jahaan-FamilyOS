@@ -9,7 +9,7 @@ export function Step6Notifications() {
         title="Stay in the loop"
         subtitle="Choose what Jahaan reminds you about."
       />
-      <div className="bg-white border border-[rgba(0,0,0,0.08)] rounded-card p-4 text-text-tertiary text-sm text-center">
+      <div className="bg-white border border-[rgba(0,0,0,0.08)] rounded-card p-4 text-content-tertiary text-sm text-center">
         Notification preferences — Phase 8
       </div>
     </div>
