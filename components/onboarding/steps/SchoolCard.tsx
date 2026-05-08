@@ -34,6 +34,7 @@ export function SchoolCard() {
   const [entries, setEntries] = useState<SchoolEntry[]>([]);
   const [suggestions, setSuggestions] = useState<SchoolSuggestion[]>([]);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { init(); }, []);
 
   async function init() {

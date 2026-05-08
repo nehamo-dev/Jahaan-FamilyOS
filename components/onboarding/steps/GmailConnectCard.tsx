@@ -31,7 +31,7 @@ export function GmailConnectCard() {
         <CheckCircle2 size={22} strokeWidth={1.5} className="text-success flex-shrink-0" />
         <div>
           <p className="text-[14px] font-medium text-content-primary">Gmail connected</p>
-          <p className="text-[12px] text-content-secondary mt-0.5">We'll use this to find schools and events</p>
+          <p className="text-[12px] text-content-secondary mt-0.5">We&apos;ll use this to find schools and events</p>
         </div>
       </div>
     );
